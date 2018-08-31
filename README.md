@@ -1,6 +1,6 @@
-# sns-listeners-microservice
+# Workers-Microservice
 
-ThinBlock's SNS Listeners API is built on restify framework. It depends on NodeJS server `v8.11.2` and tests are written with `chai` and runner is `mocha`. The database is MongoDb with mongoose ORM. We use TypeScript langauge to write strongly typed code which has less chances of breaking and better intellisense support in VS Code.
+ThinBlock's Workers MicroService is built on restify framework. It depends on NodeJS server `v8.11.2` and tests are written with `chai` and runner is `mocha`. The database is MongoDb with mongoose ORM. We use TypeScript langauge to write strongly typed code which has less chances of breaking and better intellisense support in VS Code.
 
 ## Installation
 We use `yarn` to install the packages. Do
@@ -9,7 +9,7 @@ We use `yarn` to install the packages. Do
 ```
 in the project's directory. After installing you need to set up environment variables. In Unix based systems you can do:
 ```
- export TB_JOBS_API_DB="Mongo db string here"
+ export TB_WORKERS_REDIS_DB_STRING="Redis connection string here"
 ```
 
 > Contact the collaborators to get remote db string and node string.
