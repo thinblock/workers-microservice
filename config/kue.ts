@@ -13,13 +13,13 @@ queue.process('cron-periodical-worker', function (job, done) {
   evaluateConditions(jobData)
     .then(() => {
       logger.info(oneLine`
-        [i] Job (${jobData.id}) with QueueId: ${job.id} finished successfully
+        [i] Job (${jobData._id}) with QueueId: ${job.id} finished successfully
       `);
       done();
     })
     .catch((e) => {
       logger.error(oneLine`
-        [Err] Job (${jobData.id}) with QueueId: ${job.id} errored
+        [Err] Job (${jobData._id}) with QueueId: ${job.id} errored
       `, e);
       done(e);
     });
@@ -35,7 +35,7 @@ async function evaluateConditions(jobData: any) {
   try {
     if (!lastRunDate) {
       logger.info(oneLine`
-        [i] Didn't find any last_run_date for Job: ${jobData.id}, Running actions NOW
+        [i] Didn't find any last_run_date for Job: ${jobData._id}, Running actions NOW
         as warm up!
       `);
       await publishActions(actions);
@@ -57,29 +57,29 @@ async function evaluateConditions(jobData: any) {
 
       // If all conditions are true, publish actions events
       if (evaluatedConditions.reduce((error, cond) => error && cond, true)) {
-        logger.info(`[i] All Conditions true for Job: ${jobData.id}`);
-        logger.info(`[i] Publishing events for ${actions.length} actions with Job: ${jobData.id}`);
+        logger.info(`[i] All Conditions true for Job: ${jobData._id}`);
+        logger.info(`[i] Publishing events for ${actions.length} actions with Job: ${jobData._id}`);
         await publishActions(actions);
         logger.info(oneLine`
           [i] Publishing events for ${actions.length} actions was successfull
-          with Job: ${jobData.id}
+          with Job: ${jobData._id}
         `);
       }
     }
   } catch (e) {
     logger.info(oneLine`
-      [Err] Error occurred while publishing events for the actions of Job: ${jobData.id}
+      [Err] Error occurred while publishing events for the actions of Job: ${jobData._id}
     `, e);
     errored = e;
   }
 
   // Save the last run date even if it errored
   try {
-    await saveLastRun(jobData.id, jobData.timestamp);
+    await saveLastRun(jobData._id, jobData.timestamp);
   } catch (e) {
     logger.info(oneLine`
-      [Err] Error occurred while saving last_run info of Job: ${jobData.id}
-    `, Object.keys(e));
+      [Err] Error occurred while saving last_run info of Job: ${jobData._id}
+    `, e);
   }
 
   if (errored) {
