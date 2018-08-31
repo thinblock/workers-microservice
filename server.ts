@@ -1,4 +1,3 @@
-import './scripts/setup_sns';
 import * as restify from 'restify';
 import { config } from './config/env';
 import { buildServer } from './config/restify';
