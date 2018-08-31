@@ -6,6 +6,7 @@ interface EnvConfig {
   debug: boolean;
   db: string;
   test: boolean;
+  aws_region: string;
   jobConditionEvaluateTopicARN: string;
 }
 

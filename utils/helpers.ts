@@ -1,10 +1,12 @@
-import { SNS, SharedIniFileCredentials } from 'aws-sdk';
-import MessageValidator from 'sns-validator';
+import { SNS, SharedIniFileCredentials, config as awsConfig } from 'aws-sdk';
+import MessageValidator = require('sns-validator');
 import { ISNSEvent, SNSEvents } from '../app/interfaces/utils/IAWS';
 import { config } from '../config/env';
 import { logger } from './logger';
 import { oneLine } from 'common-tags';
 import { UnauthorizedError, InternalServerError } from 'restify-errors';
+
+awsConfig.update({ region: config.aws_region });
 
 const publishMessage = async (TopicArn: string, Message: string) => {
   const snsClient = new SNS({

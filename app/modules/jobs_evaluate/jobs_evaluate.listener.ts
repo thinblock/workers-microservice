@@ -16,8 +16,8 @@ export default class PeriodicalCronListener implements IController {
       }
 
       const jobData = {
-        ...JSON.parse(req.body.Message),
-        timestamp: req.body.Timestamp
+        ...JSON.parse(notification.Message),
+        timestamp: notification.Timestamp
       };
       const job = await enqueueJob(jobData);
       req.log.info('[i] Created job with ID: ', job.id);
