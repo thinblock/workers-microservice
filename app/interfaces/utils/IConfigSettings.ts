@@ -5,6 +5,7 @@ interface EnvConfig {
   env: string;
   debug: boolean;
   db: string;
+  snsNotificationARN: string;
   test: boolean;
   aws_region: string;
   jobConditionEvaluateTopicARN: string;

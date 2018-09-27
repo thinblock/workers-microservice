@@ -18,6 +18,10 @@ const publishMessage = async (TopicArn: string, Message: string) => {
   }).promise();
 };
 
+const triggerNotification = async (data: {data: any, event: string, jobId: string}) => {
+  return publishMessage(config.snsNotificationARN, JSON.stringify(data));
+};
+
 const verifySNSSubscription = async (message: ISNSEvent): Promise<boolean> => {
   try {
     const snsClient = new SNS({
@@ -84,6 +88,7 @@ const validateAndConfirmMessage = async (notification: ISNSEvent): Promise<strin
 export {
   publishMessage,
   verifySNSSubscription,
+  triggerNotification,
   isValidSNSMessage,
   validateAndConfirmMessage
 };

@@ -2,7 +2,7 @@ import { createQueue, Job } from 'kue';
 import * as moment from 'moment';
 import { logger } from '../utils/logger';
 import { saveLastRun } from '../utils/jobs_service';
-import { publishMessage } from '../utils/helpers';
+import { publishMessage, triggerNotification } from '../utils/helpers';
 import { config } from './env';
 import { oneLine } from 'common-tags';
 
@@ -55,8 +55,10 @@ async function evaluateConditions(jobData: any) {
 
     // If there was a last_run_date and its diff with current date is FAR Greater than the
     // saved condition (in mins) than save the last_date with current timestamp and return;
-    const lastDiffFromNowMins = Math.round((moment(lastRunDate).diff(moment()) / 1000) / 60);
-    const conditionArg = parseInt(conditions[0] ? <string> conditions[0].argument.value : '0');
+    const lastDiffFromNowMins = Math.round((moment().diff(moment(lastRunDate)) / 1000) / 60);
+    const conditionArg = Math.round(
+      parseFloat(conditions[0] ? <string> conditions[0].argument.value : '0')
+    );
 
     if (lastDiffFromNowMins > (conditionArg + 1 )) {
       logger.info(oneLine`
@@ -87,6 +89,18 @@ async function evaluateConditions(jobData: any) {
     if (evaluatedConditions.reduce((error, cond) => error && cond, true)) {
       logger.info(`[i] All Conditions true for Job: ${jobData._id}`);
       logger.info(`[i] Publishing events for ${actions.length} actions with Job: ${jobData._id}`);
+      try {
+        triggerNotification({
+          jobId: jobData._id,
+          event: `every_${conditionArg}_mins`,
+          data: {
+            current_run: jobData.timestamp,
+            last_run: lastRunDate
+          }
+        });
+      } catch (e) {
+        logger.error(oneLine`[Error] Error while notifying event for Job: ${jobData._id}`);
+      }
       await saveSuccessRunDate();
       await publishActions(actions);
       logger.info(oneLine`
@@ -99,15 +113,6 @@ async function evaluateConditions(jobData: any) {
       [Err] Error occurred while publishing events for the actions of Job: ${jobData._id}
     `, e);
     errored = e;
-  }
-
-  // Save the last run date even if it errored
-  try {
-    await saveLastRun(jobData._id, jobData.timestamp);
-  } catch (e) {
-    logger.info(oneLine`
-      [Err] Error occurred while saving last_run info of Job: ${jobData._id}
-    `, e);
   }
 
   if (errored) {
